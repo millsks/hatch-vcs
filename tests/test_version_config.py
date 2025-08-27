@@ -69,10 +69,38 @@ class TestRawOptions:
         with pytest.raises(TypeError, match='option `raw-options` must be a table'):
             _ = version_source.config_raw_options
 
+    def test_write_to_removed_from_config(self, new_project_basic):
+        config = {'raw-options': {'write_to': 'foo.py', 'write_to_template': 'bar', 'other': True}}
+        version_source = VCSVersionSource(new_project_basic, config)
+        result = version_source.construct_setuptools_scm_config()
+        assert 'write_to' not in result
+        assert 'write_to_template' not in result
+        assert 'other' in result
+
 
 def test_coverage(new_project_basic):
     version_source = VCSVersionSource(new_project_basic, {})
 
-    assert version_source.config_tag_pattern is version_source.config_tag_pattern
-    assert version_source.config_fallback_version is version_source.config_fallback_version
-    assert version_source.config_raw_options is version_source.config_raw_options
+    assert version_source.config_tag_pattern == ''
+    assert version_source.config_fallback_version == ''
+    assert version_source.config_raw_options == {}
+
+
+def test_get_version_data_calls_get_version(monkeypatch, new_project_basic):
+    config = {}
+    version_source = VCSVersionSource(new_project_basic, config)
+    monkeypatch.delenv('HATCH_VERSION_OVERRIDE', raising=False)
+
+    # Patch setuptools_scm.get_version to a dummy function
+    def dummy_get_version(**kwargs):
+        return 'dummy-version'
+
+    monkeypatch.setattr('setuptools_scm.get_version', dummy_get_version)
+    assert version_source.get_version_data() == {'version': 'dummy-version'}
+
+
+def test_get_version_data_env_override(monkeypatch, new_project_basic):
+    config = {}
+    version_source = VCSVersionSource(new_project_basic, config)
+    monkeypatch.setenv('HATCH_VERSION_OVERRIDE', 'override-version')
+    assert version_source.get_version_data() == {'version': 'override-version'}

@@ -69,9 +69,9 @@ class VCSVersionSource(VersionSourceInterface):
         return config
 
     def get_version_data(self):
-        if os.getenv("HATCH_VERSION_OVERRIDE", default=None) is not None:
-            return {'version': os.getenv("HATCH_VERSION_OVERRIDE")}
-        
+        if os.getenv('HATCH_VERSION_OVERRIDE', default=None) is not None:
+            return {'version': os.getenv('HATCH_VERSION_OVERRIDE')}
+
         from setuptools_scm import get_version
 
         version = get_version(**self.construct_setuptools_scm_config())
