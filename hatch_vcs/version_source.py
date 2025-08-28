@@ -69,9 +69,9 @@ class VCSVersionSource(VersionSourceInterface):
         return config
 
     def get_version_data(self):
-        # Check for setuptools_scm override environment variables
-        # 1. SETUPTOOLS_SCM_PRETEND_VERSION_FOR_${DIST_NAME}
-        # 2. SETUPTOOLS_SCM_PRETEND_VERSION
+        # Check for hatch-vcs override environment variables
+        # 1. HATCH_VCS_PRETEND_VERSION_FOR_${DIST_NAME}
+        # 2. HATCH_VCS_PRETEND_VERSION
         # 3. HATCH_VERSION_OVERRIDE (legacy)
         # Try to extract the dist name from config, else fallback to test fixture, else basename
         dist_name = self.config.get('dist_name')
@@ -82,10 +82,10 @@ class VCSVersionSource(VersionSourceInterface):
             else:
                 dist_name = self.root.name if hasattr(self.root, 'name') else os.path.basename(self.root)
         norm_dist_name = dist_name.replace('-', '_').replace('.', '_').replace('/', '_').upper()
-        env_var_specific = f'SETUPTOOLS_SCM_PRETEND_VERSION_FOR_{norm_dist_name}'
+        env_var_specific = f'HATCH_VCS_PRETEND_VERSION_FOR_{norm_dist_name}'
         version_override = os.getenv(env_var_specific)
         if version_override is None:
-            version_override = os.getenv('SETUPTOOLS_SCM_PRETEND_VERSION')
+            version_override = os.getenv('HATCH_VCS_PRETEND_VERSION')
         if version_override is None:
             version_override = os.getenv('HATCH_VERSION_OVERRIDE')
         if version_override is not None:

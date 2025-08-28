@@ -103,17 +103,17 @@ def test_get_version_data_env_override(monkeypatch, new_project_basic):
     config = {}
     version_source = VCSVersionSource(new_project_basic, config)
     monkeypatch.setenv('HATCH_VERSION_OVERRIDE', 'override-version')
-    monkeypatch.delenv('SETUPTOOLS_SCM_PRETEND_VERSION', raising=False)
-    monkeypatch.delenv('SETUPTOOLS_SCM_PRETEND_VERSION_FOR_NEW_PROJECT_BASIC', raising=False)
+    monkeypatch.delenv('HATCH_VCS_PRETEND_VERSION', raising=False)
+    monkeypatch.delenv('HATCH_VCS_PRETEND_VERSION_FOR_NEW_PROJECT_BASIC', raising=False)
     assert version_source.get_version_data() == {'version': 'override-version'}
 
 
 def test_get_version_data_setuptools_scm_pretend_version(monkeypatch, new_project_basic):
     config = {}
     version_source = VCSVersionSource(new_project_basic, config)
-    monkeypatch.setenv('SETUPTOOLS_SCM_PRETEND_VERSION', 'pretend-version')
+    monkeypatch.setenv('HATCH_VCS_PRETEND_VERSION', 'pretend-version')
     monkeypatch.delenv('HATCH_VERSION_OVERRIDE', raising=False)
-    monkeypatch.delenv('SETUPTOOLS_SCM_PRETEND_VERSION_FOR_NEW_PROJECT_BASIC', raising=False)
+    monkeypatch.delenv('HATCH_VCS_PRETEND_VERSION_FOR_NEW_PROJECT_BASIC', raising=False)
     assert version_source.get_version_data() == {'version': 'pretend-version'}
 
 
@@ -121,8 +121,8 @@ def test_get_version_data_setuptools_scm_pretend_version_for_dist(monkeypatch, n
     config = {'dist_name': 'new_project_basic'}
     version_source = VCSVersionSource(new_project_basic, config)
     # The normalized dist name for the test fixture is 'new_project_basic', uppercase and underscores
-    monkeypatch.setenv('SETUPTOOLS_SCM_PRETEND_VERSION_FOR_NEW_PROJECT_BASIC', 'specific-pretend-version')
-    monkeypatch.setenv('SETUPTOOLS_SCM_PRETEND_VERSION', 'pretend-version')
+    monkeypatch.setenv('HATCH_VCS_PRETEND_VERSION_FOR_NEW_PROJECT_BASIC', 'specific-pretend-version')
+    monkeypatch.setenv('HATCH_VCS_PRETEND_VERSION', 'pretend-version')
     monkeypatch.setenv('HATCH_VERSION_OVERRIDE', 'override-version')
     assert version_source.get_version_data() == {'version': 'specific-pretend-version'}
 
@@ -130,14 +130,14 @@ def test_get_version_data_setuptools_scm_pretend_version_for_dist(monkeypatch, n
 def test_get_version_data_env_precedence(monkeypatch, new_project_basic):
     config = {'dist_name': 'new_project_basic'}
     version_source = VCSVersionSource(new_project_basic, config)
-    monkeypatch.setenv('SETUPTOOLS_SCM_PRETEND_VERSION_FOR_NEW_PROJECT_BASIC', 'specific-pretend-version')
-    monkeypatch.setenv('SETUPTOOLS_SCM_PRETEND_VERSION', 'pretend-version')
+    monkeypatch.setenv('HATCH_VCS_PRETEND_VERSION_FOR_NEW_PROJECT_BASIC', 'specific-pretend-version')
+    monkeypatch.setenv('HATCH_VCS_PRETEND_VERSION', 'pretend-version')
     monkeypatch.setenv('HATCH_VERSION_OVERRIDE', 'override-version')
     # Should prefer the specific dist override
     assert version_source.get_version_data() == {'version': 'specific-pretend-version'}
-    monkeypatch.delenv('SETUPTOOLS_SCM_PRETEND_VERSION_FOR_NEW_PROJECT_BASIC', raising=False)
+    monkeypatch.delenv('HATCH_VCS_PRETEND_VERSION_FOR_NEW_PROJECT_BASIC', raising=False)
     # Should prefer the generic override
     assert version_source.get_version_data() == {'version': 'pretend-version'}
-    monkeypatch.delenv('SETUPTOOLS_SCM_PRETEND_VERSION', raising=False)
+    monkeypatch.delenv('HATCH_VCS_PRETEND_VERSION', raising=False)
     # Should prefer the legacy override
     assert version_source.get_version_data() == {'version': 'override-version'}
